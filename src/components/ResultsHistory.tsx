@@ -1,15 +1,9 @@
 import React from 'react';
 import { History, RotateCcw } from 'lucide-react';
-
-interface Result {
-  id: string;
-  player: string;
-  result: string;
-  timestamp: Date;
-}
+import { SpinResult } from '../types/database';
 
 interface ResultsHistoryProps {
-  results: Result[];
+  results: SpinResult[];
   onClearHistory: () => void;
 }
 
@@ -35,10 +29,10 @@ export default function ResultsHistory({ results, onClearHistory }: ResultsHisto
       <div className="space-y-2 max-h-40 overflow-y-auto">
         {results.slice(-5).reverse().map((result) => (
           <div key={result.id} className="p-2 bg-gray-50 rounded border">
-            <div className="text-sm font-medium">{result.player}</div>
+            <div className="text-sm font-medium">{result.player_name}</div>
             <div className="text-xs text-gray-600">{result.result}</div>
             <div className="text-xs text-gray-400">
-              {result.timestamp.toLocaleTimeString()}
+              {new Date(result.timestamp).toLocaleTimeString()}
             </div>
           </div>
         ))}

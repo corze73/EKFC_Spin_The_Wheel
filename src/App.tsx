@@ -4,25 +4,25 @@ import PlayerSelector from './components/PlayerSelector';
 import AddPlayerModal from './components/AddPlayerModal';
 import ResultsHistory from './components/ResultsHistory';
 import LoginForm from './components/LoginForm';
+import { useDatabase } from './hooks/useDatabase';
 import { LogOut } from 'lucide-react';
 
-interface Result {
-  id: string;
-  player: string;
-  result: string;
-  timestamp: Date;
-}
-
 function App() {
-  const [players, setPlayers] = useState<string[]>([
-    'John Smith', 'Mike Johnson', 'David Wilson', 'Chris Brown', 'Tom Davis'
-  ]);
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false);
-  const [results, setResults] = useState<Result[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  const { 
+    players, 
+    results, 
+    loading, 
+    addPlayer, 
+    removePlayer, 
+    addResult, 
+    clearResults 
+  } = useDatabase();
 
   useEffect(() => {
     // Register service worker for PWA
@@ -36,34 +36,11 @@ function App() {
         });
     }
 
-    // Load saved data from localStorage
-    const savedPlayers = localStorage.getItem('football-wheel-players');
-    if (savedPlayers) {
-      setPlayers(JSON.parse(savedPlayers));
-    }
-
-    const savedResults = localStorage.getItem('football-wheel-results');
-    if (savedResults) {
-      const parsedResults = JSON.parse(savedResults);
-      setResults(parsedResults.map((r: any) => ({
-        ...r,
-        timestamp: new Date(r.timestamp)
-      })));
-    }
-
     const savedSoundEnabled = localStorage.getItem('football-wheel-sound');
     if (savedSoundEnabled) {
       setSoundEnabled(JSON.parse(savedSoundEnabled));
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('football-wheel-players', JSON.stringify(players));
-  }, [players]);
-
-  useEffect(() => {
-    localStorage.setItem('football-wheel-results', JSON.stringify(results));
-  }, [results]);
 
   useEffect(() => {
     localStorage.setItem('football-wheel-sound', JSON.stringify(soundEnabled));
@@ -80,14 +57,134 @@ function App() {
     setSelectedPlayer('');
   };
 
-  const handleAddPlayer = (name: string) => {
-    if (!players.includes(name)) {
-      setPlayers([...players, name]);
+  const handleAddPlayer = async (name: string) => {
+    if (!players.find(p => p.name === name)) {
+      const success = await addPlayer(name);
+      if (success) {
+        setIsAddPlayerModalOpen(false);
+      }
     }
   };
 
-  const handleRemovePlayer = (name: string) => {
-    setPlayers(players.filter(player => player !== name));
+  const handleRemovePlayer = async (playerId: string, playerName: string) => {
+    const success = await removePlayer(playerId);
+    if (success) {
+      // If the removed player was selected, clear the selection
+      if (selectedPlayer === playerName) {
+        setSelectedPlayer('');
+      }
+    }
+  };
+
+  const handleSpinComplete = async (result: string) => {
+    const cleanResult = result.replace(`${selectedPlayer}: `, '');
+    await addResult(selectedPlayer, cleanResult);
+  };
+
+  const handleClearHistory = async () => {
+    await clearResults();
+  };
+
+  const handleSoundToggle = () => {
+    setSoundEnabled(!soundEnabled);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-[#2D5A27] rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
+            E&K
+          </div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-[#2D5A27] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                E&K
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-[#2D5A27]">E&KFC</h1>
+                <span className="text-sm text-gray-500">
+                  {isAdmin ? 'Admin Mode' : 'User Mode'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </div>
+          <div className="text-center">
+            <h2 className="text-xl text-gray-600 mb-1">Spin the Wheel</h2>
+            <p className="text-sm text-gray-500">Alternative to player fines - let fate decide!</p>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <div className="max-w-lg mx-auto space-y-8">
+          {/* Player Selection */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <PlayerSelector
+              players={players}
+              selectedPlayer={selectedPlayer}
+              onPlayerSelect={setSelectedPlayer}
+              onAddPlayer={() => setIsAddPlayerModalOpen(true)}
+              onRemovePlayer={handleRemovePlayer}
+              isAdmin={isAdmin}
+            />
+          </div>
+
+          {/* Spin Wheel */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <SpinWheel
+              selectedPlayer={selectedPlayer}
+              onSpinComplete={handleSpinComplete}
+              soundEnabled={soundEnabled}
+              onSoundToggle={handleSoundToggle}
+            />
+          </div>
+
+          {/* Results History */}
+          <ResultsHistory
+            results={results}
+            onClearHistory={handleClearHistory}
+          />
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center mt-12 text-sm text-gray-500">
+          <p>Install this app on your phone for the best experience!</p>
+        </footer>
+      </div>
+
+      {/* Add Player Modal */}
+      {isAdmin && (
+        <AddPlayerModal
+          isOpen={isAddPlayerModalOpen}
+          onClose={() => setIsAddPlayerModalOpen(false)}
+          onAddPlayer={handleAddPlayer}
+        />
+      )}
+    </div>
+  );
+}
     // If the removed player was selected, clear the selection
     if (selectedPlayer === name) {
       setSelectedPlayer('');

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Users, X } from 'lucide-react';
+import { Player } from '../types/database';
 
 interface PlayerSelectorProps {
-  players: string[];
+  players: Player[];
   selectedPlayer: string;
   onPlayerSelect: (player: string) => void;
   onAddPlayer: () => void;
-  onRemovePlayer: (player: string) => void;
+  onRemovePlayer: (playerId: string, playerName: string) => void;
   isAdmin: boolean;
 }
 
@@ -36,8 +37,8 @@ export default function PlayerSelector({ players, selectedPlayer, onPlayerSelect
       >
         <option value="">Choose a player...</option>
         {players.map((player) => (
-          <option key={player} value={player}>
-            {player}
+          <option key={player.id} value={player.name}>
+            {player.name}
           </option>
         ))}
       </select>
@@ -47,12 +48,12 @@ export default function PlayerSelector({ players, selectedPlayer, onPlayerSelect
           <h3 className="text-sm font-medium text-gray-700">Manage Players:</h3>
           <div className="max-h-32 overflow-y-auto space-y-1">
             {players.map((player) => (
-              <div key={player} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                <span className="text-sm">{player}</span>
+              <div key={player.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                <span className="text-sm">{player.name}</span>
                 <button
-                  onClick={() => onRemovePlayer(player)}
+                  onClick={() => onRemovePlayer(player.id, player.name)}
                   className="p-1 text-red-500 hover:bg-red-100 rounded transition-colors"
-                  title={`Remove ${player}`}
+                  title={`Remove ${player.name}`}
                 >
                   <X size={16} />
                 </button>
