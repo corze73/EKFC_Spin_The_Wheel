@@ -72,6 +72,13 @@ function App() {
     }
   };
 
+  const handleRemovePlayer = (name: string) => {
+    setPlayers(players.filter(player => player !== name));
+    // If the removed player was selected, clear the selection
+    if (selectedPlayer === name) {
+      setSelectedPlayer('');
+    }
+  };
   const handleSpinComplete = (result: string) => {
     const newResult: Result = {
       id: Date.now().toString(),
@@ -116,6 +123,7 @@ function App() {
               selectedPlayer={selectedPlayer}
               onPlayerSelect={setSelectedPlayer}
               onAddPlayer={() => setIsAddPlayerModalOpen(true)}
+              onRemovePlayer={handleRemovePlayer}
             />
           </div>
 
