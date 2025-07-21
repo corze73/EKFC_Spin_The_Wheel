@@ -5,9 +5,8 @@ interface LoginFormProps {
   onLogin: (isAdmin: boolean) => void;
 }
 
-// Generate a random password for admin (corze73)
-const ADMIN_PASSWORD = Math.random().toString(36).slice(-8).toUpperCase();
-console.log('Admin Password:', ADMIN_PASSWORD); // This will show in console for now
+// Fixed admin password
+const ADMIN_PASSWORD = 'K7M9P2X8';
 
 export default function LoginForm({ onLogin }: LoginFormProps) {
   const [username, setUsername] = useState('');
@@ -44,15 +43,6 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
           </div>
           <h2 className="text-xl text-gray-600">Spin the Wheel</h2>
           <p className="text-sm text-gray-500 mt-2">Login to access admin features</p>
-        </div>
-
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
-          <p className="text-sm text-yellow-800">
-            <strong>Admin Password:</strong> {ADMIN_PASSWORD}
-          </p>
-          <p className="text-xs text-yellow-600 mt-1">
-            (Check browser console for password)
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
