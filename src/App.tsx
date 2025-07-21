@@ -122,11 +122,9 @@ function App() {
         <header className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/Screenshot 2025-01-23 at 07.38.49.png" 
-                alt="E&KFC Logo" 
-                className="w-12 h-12 object-contain"
-              />
+              <div className="w-12 h-12 bg-[#2D5A27] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                E&K
+              </div>
               <div>
                 <h1 className="text-3xl font-bold text-[#2D5A27]">E&KFC</h1>
                 <span className="text-sm text-gray-500">

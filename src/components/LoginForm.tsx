@@ -34,11 +34,9 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <img 
-              src="/Screenshot 2025-01-23 at 07.38.49.png" 
-              alt="E&KFC Logo" 
-              className="w-12 h-12 object-contain"
-            />
+            <div className="w-12 h-12 bg-[#2D5A27] rounded-full flex items-center justify-center text-white font-bold text-lg">
+              E&K
+            </div>
             <h1 className="text-2xl font-bold text-[#2D5A27]">E&KFC</h1>
           </div>
           <h2 className="text-xl text-gray-600">Spin the Wheel</h2>
