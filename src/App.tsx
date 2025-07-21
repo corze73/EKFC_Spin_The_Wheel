@@ -3,7 +3,8 @@ import SpinWheel from './components/SpinWheel';
 import PlayerSelector from './components/PlayerSelector';
 import AddPlayerModal from './components/AddPlayerModal';
 import ResultsHistory from './components/ResultsHistory';
-import { Trophy } from 'lucide-react';
+import LoginForm from './components/LoginForm';
+import { LogOut } from 'lucide-react';
 
 interface Result {
   id: string;
@@ -20,6 +21,8 @@ function App() {
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false);
   const [results, setResults] = useState<Result[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Register service worker for PWA
@@ -66,6 +69,17 @@ function App() {
     localStorage.setItem('football-wheel-sound', JSON.stringify(soundEnabled));
   }, [soundEnabled]);
 
+  const handleLogin = (adminStatus: boolean) => {
+    setIsLoggedIn(true);
+    setIsAdmin(adminStatus);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    setSelectedPlayer('');
+  };
+
   const handleAddPlayer = (name: string) => {
     if (!players.includes(name)) {
       setPlayers([...players, name]);
@@ -97,21 +111,41 @@ function App() {
     setSoundEnabled(!soundEnabled);
   };
 
+  if (!isLoggedIn) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-3 mb-2">
-            <img 
-              src="/Screenshot 2025-01-23 at 07.38.49.png" 
-              alt="E&KFC Logo" 
-              className="w-12 h-12 object-contain"
-            />
-            <h1 className="text-3xl font-bold text-[#2D5A27]">E&KFC</h1>
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/Screenshot 2025-01-23 at 07.38.49.png" 
+                alt="E&KFC Logo" 
+                className="w-12 h-12 object-contain"
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-[#2D5A27]">E&KFC</h1>
+                <span className="text-sm text-gray-500">
+                  {isAdmin ? 'Admin Mode' : 'User Mode'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
           </div>
-          <h2 className="text-xl text-gray-600 mb-1">Spin the Wheel</h2>
-          <p className="text-sm text-gray-500">Alternative to player fines - let fate decide!</p>
+          <div className="text-center">
+            <h2 className="text-xl text-gray-600 mb-1">Spin the Wheel</h2>
+            <p className="text-sm text-gray-500">Alternative to player fines - let fate decide!</p>
+          </div>
         </header>
 
         {/* Main Content */}
@@ -124,6 +158,7 @@ function App() {
               onPlayerSelect={setSelectedPlayer}
               onAddPlayer={() => setIsAddPlayerModalOpen(true)}
               onRemovePlayer={handleRemovePlayer}
+              isAdmin={isAdmin}
             />
           </div>
 
@@ -151,11 +186,13 @@ function App() {
       </div>
 
       {/* Add Player Modal */}
-      <AddPlayerModal
-        isOpen={isAddPlayerModalOpen}
-        onClose={() => setIsAddPlayerModalOpen(false)}
-        onAddPlayer={handleAddPlayer}
-      />
+      {isAdmin && (
+        <AddPlayerModal
+          isOpen={isAddPlayerModalOpen}
+          onClose={() => setIsAddPlayerModalOpen(false)}
+          onAddPlayer={handleAddPlayer}
+        />
+      )}
     </div>
   );
 }

@@ -7,9 +7,10 @@ interface PlayerSelectorProps {
   onPlayerSelect: (player: string) => void;
   onAddPlayer: () => void;
   onRemovePlayer: (player: string) => void;
+  isAdmin: boolean;
 }
 
-export default function PlayerSelector({ players, selectedPlayer, onPlayerSelect, onAddPlayer, onRemovePlayer }: PlayerSelectorProps) {
+export default function PlayerSelector({ players, selectedPlayer, onPlayerSelect, onAddPlayer, onRemovePlayer, isAdmin }: PlayerSelectorProps) {
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -17,12 +18,14 @@ export default function PlayerSelector({ players, selectedPlayer, onPlayerSelect
           <Users size={20} />
           <span>Select Player</span>
         </label>
-        <button
-          onClick={onAddPlayer}
-          className="px-3 py-1 bg-[#2D5A27] text-white text-sm rounded hover:bg-[#1a3318] transition-colors"
-        >
-          Add Player
-        </button>
+        {isAdmin && (
+          <button
+            onClick={onAddPlayer}
+            className="px-3 py-1 bg-[#2D5A27] text-white text-sm rounded hover:bg-[#1a3318] transition-colors"
+          >
+            Add Player
+          </button>
+        )}
       </div>
       
       <select
@@ -39,7 +42,7 @@ export default function PlayerSelector({ players, selectedPlayer, onPlayerSelect
         ))}
       </select>
       
-      {players.length > 0 && (
+      {isAdmin && players.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-gray-700">Manage Players:</h3>
           <div className="max-h-32 overflow-y-auto space-y-1">
