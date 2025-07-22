@@ -71,7 +71,7 @@ export function useDatabase() {
         created_at: row.created_at
       })));
     } catch (error) {
-      console.error('Error loading results:', error);
+      console.warn('Database not ready, using localStorage fallback:', error);
       // Fallback to localStorage if database fails
       const savedResults = localStorage.getItem('football-wheel-results');
       if (savedResults) {
