@@ -50,6 +50,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#2D5A27] focus:outline-none"
               placeholder="Enter username"
             />
