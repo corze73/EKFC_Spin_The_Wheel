@@ -69,18 +69,20 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       }
     }
 
+    // Reset to a known good position first (middle of the repeated sections)
+    const basePosition = -totalWidth * 5; // Middle of the 10 copies
+    
     // Calculate spin distance - multiple full rotations plus random final position
     const spins = 3 + Math.random() * 2; // 3-5 full rotations
     const randomOffset = Math.random() * totalWidth;
     const spinDistance = spins * totalWidth + randomOffset;
-    const newTranslateX = translateX - spinDistance;
+    const newTranslateX = basePosition - spinDistance;
     
     setTranslateX(newTranslateX);
 
     setTimeout(() => {
-      // Calculate which option is under the arrow at center
+      // Calculate which option is under the center arrow
       const containerCenter = 300; // Half of 600px container width
-      // Get the absolute position and find what's under the center arrow
       const absolutePosition = Math.abs(newTranslateX);
       const positionUnderArrow = (absolutePosition + containerCenter) % totalWidth;
       const selectedIndex = Math.floor(positionUnderArrow / sectorWidth);
@@ -88,15 +90,6 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       
       onSpinComplete(`${selectedPlayer}: ${result.text}`);
       setIsSpinning(false);
-      
-      // Smart reset: find equivalent position in middle copies that shows same result
-      setTimeout(() => {
-        // Calculate equivalent position in the middle set that shows the same result
-        const offsetInCurrentSet = (absolutePosition + containerCenter) % totalWidth;
-        const middleSetStart = totalWidth * 5; // Position in middle of the 10 copies
-        const smartResetPosition = -(middleSetStart + offsetInCurrentSet - containerCenter);
-        setTranslateX(smartResetPosition);
-      }, 100);
     }, 4000);
   };
 
