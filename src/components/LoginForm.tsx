@@ -66,6 +66,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#2D5A27] focus:outline-none pr-10"
                 placeholder="Enter password"
               />
