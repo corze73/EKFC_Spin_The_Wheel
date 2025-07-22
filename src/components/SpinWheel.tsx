@@ -87,8 +87,8 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       setIsSpinning(false);
       
       // Reset position to prevent overflow while maintaining visual continuity
-      const normalizedPosition = finalPosition;
-      setCurrentPosition(normalizedPosition);
+      // Keep the wheel at the same visual position but reset to first cycle
+      setCurrentPosition(finalPosition);
     }, 4000);
   };
 
