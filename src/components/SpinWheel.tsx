@@ -95,7 +95,7 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
         </div>
         
         {/* Vertical wheel container - taller to show more options */}
-        <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative ml-6">
+        <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative">
           <div 
             ref={wheelRef}
             className={`absolute left-0 top-0 w-full flex flex-col ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
