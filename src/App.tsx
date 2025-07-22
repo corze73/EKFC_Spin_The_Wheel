@@ -93,9 +93,7 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 bg-[#2D5A27] rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
-            E&K
-          </div>
+          <img src="/logo.png" alt="E&KFC Logo" className="w-12 h-12 object-contain mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -113,9 +111,7 @@ function App() {
         <header className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-[#2D5A27] rounded-full flex items-center justify-center text-white font-bold text-lg">
-                E&K
-              </div>
+              <img src="/logo.png" alt="E&KFC Logo" className="w-12 h-12 object-contain" />
               <div>
                 <h1 className="text-3xl font-bold text-[#2D5A27]">E&KFC</h1>
                 <span className="text-sm text-gray-500">
