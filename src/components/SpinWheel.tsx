@@ -34,8 +34,8 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
   const [currentPosition, setCurrentPosition] = useState(0);
   const wheelRef = useRef<HTMLDivElement>(null);
   
-  const sectorWidth = 100; // Width of each sector in pixels
-  const totalWidth = wheelOptions.length * sectorWidth;
+  const sectorHeight = 80; // Height of each sector in pixels
+  const totalHeight = wheelOptions.length * sectorHeight;
 
   const spinWheel = () => {
     if (isSpinning || !selectedPlayer) return;
@@ -63,18 +63,18 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       }
     }
 
-    // Calculate spin distance: multiple full cycles plus random final position
+    // Calculate spin distance: multiple full cycles plus random final position (spinning down)
     const fullCycles = 3 + Math.random() * 3; // 3-6 full cycles
-    const randomOffset = Math.random() * totalWidth;
-    const spinDistance = (fullCycles * totalWidth) + randomOffset;
+    const randomOffset = Math.random() * totalHeight;
+    const spinDistance = (fullCycles * totalHeight) + randomOffset;
     
     const newPosition = currentPosition + spinDistance;
     setCurrentPosition(newPosition);
 
     setTimeout(() => {
       // Calculate which option is selected based on final position
-      const finalPosition = newPosition % totalWidth;
-      const selectedIndex = Math.floor(finalPosition / sectorWidth) % wheelOptions.length;
+      const finalPosition = newPosition % totalHeight;
+      const selectedIndex = Math.floor(finalPosition / sectorHeight) % wheelOptions.length;
       const result = wheelOptions[selectedIndex];
       
       onSpinComplete(`${selectedPlayer}: ${result.text}`);
@@ -89,35 +89,35 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
   return (
     <div className="space-y-6">
       <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
-        {/* Static Arrow Pointer - pointing down at center */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-          <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[20px] border-t-[#2D5A27] shadow-lg"></div>
+        {/* Static Arrow Pointer - pointing right at center */}
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-2 z-10">
+          <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-l-[20px] border-l-[#2D5A27] shadow-lg"></div>
         </div>
         
-        {/* Horizontal wheel container */}
-        <div className="w-full h-20 overflow-hidden border-4 border-[#2D5A27] rounded-full bg-white shadow-lg relative">
+        {/* Vertical wheel container */}
+        <div className="w-full h-80 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative">
           <div 
             ref={wheelRef}
             className={`absolute inset-y-0 flex ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
             style={{ 
-              transform: `translateX(-${currentPosition}px)`,
-              width: `${totalWidth * 3}px` // Triple width to ensure smooth scrolling
+              transform: `translateY(-${currentPosition}px)`,
+              height: `${totalHeight * 3}px` // Triple height to ensure smooth scrolling
             }}
           >
-            {/* Render options multiple times for seamless scrolling */}
+            {/* Render options multiple times for seamless scrolling vertically */}
             {[...Array(3)].map((_, cycle) => 
               wheelOptions.map((option, index) => (
                 <div
                   key={`${cycle}-${index}`}
-                  className="flex items-center justify-center text-white font-bold text-xs border-r border-white/20"
+                  className="flex items-center justify-center text-white font-bold text-sm border-b border-white/20"
                   style={{
                     backgroundColor: option.color,
-                    width: `${sectorWidth}px`,
-                    height: '100%',
-                    minWidth: `${sectorWidth}px`
+                    height: `${sectorHeight}px`,
+                    width: '100%',
+                    minHeight: `${sectorHeight}px`
                   }}
                 >
-                  <span className="break-words text-center leading-tight px-2 text-[10px]">
+                  <span className="break-words text-center leading-tight px-4 text-sm">
                     {option.text}
                   </span>
                 </div>
