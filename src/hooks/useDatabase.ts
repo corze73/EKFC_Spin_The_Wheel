@@ -167,6 +167,22 @@ export function useDatabase() {
   // Add spin result to Neon database
   const addResult = async (playerName: string, result: string) => {
     try {
+      if (!sql) {
+        // Fallback to localStorage if no database connection
+        const timestamp = new Date().toISOString();
+        const newResult = {
+          id: `local-${Date.now()}`,
+          player_name: playerName,
+          result,
+          timestamp,
+          created_at: timestamp
+        };
+        const updatedResults = [newResult, ...results];
+        setResults(updatedResults);
+        localStorage.setItem('football-wheel-results', JSON.stringify(updatedResults));
+        return true;
+      }
+      
       const timestamp = new Date().toISOString();
       const dbResult = await sql`
         INSERT INTO spin_results (player_name, result, timestamp) 
@@ -183,8 +199,20 @@ export function useDatabase() {
       setResults([newResult, ...results]);
       return true;
     } catch (error) {
-      console.error('Error adding result:', error);
-      return false;
+      console.warn('Error adding result to database, trying localStorage fallback:', error);
+      // Fallback to localStorage if database fails
+      const timestamp = new Date().toISOString();
+      const newResult = {
+        id: `local-${Date.now()}`,
+        player_name: playerName,
+        result,
+        timestamp,
+        created_at: timestamp
+      };
+      const updatedResults = [newResult, ...results];
+      setResults(updatedResults);
+      localStorage.setItem('football-wheel-results', JSON.stringify(updatedResults));
+      return true;
     }
   };
 
