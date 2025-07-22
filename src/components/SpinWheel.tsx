@@ -73,8 +73,14 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
 
     setTimeout(() => {
       // Calculate which option is selected based on final position
+      // The pointer is at the center of the visible area (h-96 = 384px, so center is at 192px)
+      const visibleHeight = 384; // h-96 in pixels
+      const pointerPosition = visibleHeight / 2; // Center of visible area
+      
+      // Calculate the actual position of the wheel content at the pointer
       const finalPosition = newPosition % totalHeight;
-      const selectedIndex = Math.floor(finalPosition / sectorHeight) % wheelOptions.length;
+      const positionAtPointer = (finalPosition + pointerPosition) % totalHeight;
+      const selectedIndex = Math.floor(positionAtPointer / sectorHeight) % wheelOptions.length;
       const result = wheelOptions[selectedIndex];
       
       onSpinComplete(`${selectedPlayer}: ${result.text}`);
