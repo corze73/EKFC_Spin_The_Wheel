@@ -224,7 +224,10 @@ export function useDatabase() {
       return true;
     } catch (error) {
       console.error('Error clearing results:', error);
-      return false;
+      // Fallback to localStorage if database fails
+      setResults([]);
+      localStorage.removeItem('football-wheel-results');
+      return true;
     }
   };
 
