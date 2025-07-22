@@ -111,11 +111,31 @@ export function useDatabase() {
   // Remove player from Neon database
   const removePlayer = async (id: string) => {
     try {
+      if (!sql) {
+        // Fallback to localStorage if no database connection
+        const playerToRemove = players.find(p => p.id === id);
+        if (playerToRemove) {
+          const updatedPlayers = players.filter(p => p.id !== id);
+          setPlayers(updatedPlayers);
+          const playerNames = updatedPlayers.map(p => p.name);
+          localStorage.setItem('football-wheel-players', JSON.stringify(playerNames));
+        }
+        return true;
+      }
       await sql`DELETE FROM players WHERE id = ${id}`;
       setPlayers(players.filter(p => p.id !== id));
       return true;
     } catch (error) {
-      console.error('Error removing player:', error);
+      console.warn('Error removing player from database, trying localStorage fallback:', error);
+      // Fallback to localStorage if database fails
+      const playerToRemove = players.find(p => p.id === id);
+      if (playerToRemove) {
+        const updatedPlayers = players.filter(p => p.id !== id);
+        setPlayers(updatedPlayers);
+        const playerNames = updatedPlayers.map(p => p.name);
+        localStorage.setItem('football-wheel-players', JSON.stringify(playerNames));
+        return true;
+      }
       return false;
     }
   };
