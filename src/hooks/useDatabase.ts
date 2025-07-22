@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { sql } from '../lib/neon';
 import { Player, SpinResult } from '../types/database';
 
 export function useDatabase() {
@@ -7,16 +7,15 @@ export function useDatabase() {
   const [results, setResults] = useState<SpinResult[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load players from database
+  // Load players from Neon database
   const loadPlayers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('players')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      setPlayers(data || []);
+      const data = await sql`SELECT * FROM players ORDER BY name`;
+      setPlayers(data.map(row => ({
+        id: row.id,
+        name: row.name,
+        created_at: row.created_at
+      })));
     } catch (error) {
       console.error('Error loading players:', error);
       // Fallback to localStorage if database fails
@@ -32,17 +31,17 @@ export function useDatabase() {
     }
   };
 
-  // Load results from database
+  // Load results from Neon database
   const loadResults = async () => {
     try {
-      const { data, error } = await supabase
-        .from('spin_results')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-      
-      if (error) throw error;
-      setResults(data || []);
+      const data = await sql`SELECT * FROM spin_results ORDER BY created_at DESC LIMIT 50`;
+      setResults(data.map(row => ({
+        id: row.id,
+        player_name: row.player_name,
+        result: row.result,
+        timestamp: row.timestamp,
+        created_at: row.created_at
+      })));
     } catch (error) {
       console.error('Error loading results:', error);
       // Fallback to localStorage if database fails
@@ -60,17 +59,20 @@ export function useDatabase() {
     }
   };
 
-  // Add player to database
+  // Add player to Neon database
   const addPlayer = async (name: string) => {
     try {
-      const { data, error } = await supabase
-        .from('players')
-        .insert([{ name }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      setPlayers([...players, data]);
+      const result = await sql`
+        INSERT INTO players (name) 
+        VALUES (${name}) 
+        RETURNING *
+      `;
+      const newPlayer = {
+        id: result[0].id,
+        name: result[0].name,
+        created_at: result[0].created_at
+      };
+      setPlayers([...players, newPlayer]);
       return true;
     } catch (error) {
       console.error('Error adding player:', error);
@@ -78,15 +80,10 @@ export function useDatabase() {
     }
   };
 
-  // Remove player from database
+  // Remove player from Neon database
   const removePlayer = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('players')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await sql`DELETE FROM players WHERE id = ${id}`;
       setPlayers(players.filter(p => p.id !== id));
       return true;
     } catch (error) {
@@ -95,21 +92,23 @@ export function useDatabase() {
     }
   };
 
-  // Add spin result to database
+  // Add spin result to Neon database
   const addResult = async (playerName: string, result: string) => {
     try {
-      const { data, error } = await supabase
-        .from('spin_results')
-        .insert([{
-          player_name: playerName,
-          result: result,
-          timestamp: new Date().toISOString()
-        }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      setResults([data, ...results]);
+      const timestamp = new Date().toISOString();
+      const dbResult = await sql`
+        INSERT INTO spin_results (player_name, result, timestamp) 
+        VALUES (${playerName}, ${result}, ${timestamp}) 
+        RETURNING *
+      `;
+      const newResult = {
+        id: dbResult[0].id,
+        player_name: dbResult[0].player_name,
+        result: dbResult[0].result,
+        timestamp: dbResult[0].timestamp,
+        created_at: dbResult[0].created_at
+      };
+      setResults([newResult, ...results]);
       return true;
     } catch (error) {
       console.error('Error adding result:', error);
@@ -117,15 +116,10 @@ export function useDatabase() {
     }
   };
 
-  // Clear all results
+  // Clear all results from Neon database
   const clearResults = async () => {
     try {
-      const { error } = await supabase
-        .from('spin_results')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
-      
-      if (error) throw error;
+      await sql`DELETE FROM spin_results`;
       setResults([]);
       return true;
     } catch (error) {
