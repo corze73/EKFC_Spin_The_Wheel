@@ -40,7 +40,7 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
   // Initialize wheel to show options centered
   useEffect(() => {
     // Start with some options visible, not at the very beginning
-    setTranslateX(-totalWidth);
+    setTranslateX(-totalWidth * 2);
   }, [totalWidth]);
 
   const spinWheel = () => {
@@ -73,7 +73,7 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
     const spins = 3 + Math.random() * 2; // 3-5 full rotations
     const randomOffset = Math.random() * totalWidth;
     const spinDistance = spins * totalWidth + randomOffset;
-    const newTranslateX = translateX - spinDistance; // Spin from current position
+    const newTranslateX = translateX - spinDistance;
     
     setTranslateX(newTranslateX);
 
@@ -92,9 +92,9 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       // Smart reset: find equivalent position in middle copies that shows same result
       setTimeout(() => {
         // Calculate equivalent position in the middle set that shows the same result
-        const offsetInCurrentSet = absolutePosition % totalWidth;
-        const middleSetStart = totalWidth * 5;
-        const smartResetPosition = middleSetStart - offsetInCurrentSet;
+        const offsetInCurrentSet = (absolutePosition + containerCenter) % totalWidth;
+        const middleSetStart = totalWidth * 5; // Position in middle of the 10 copies
+        const smartResetPosition = -(middleSetStart + offsetInCurrentSet - containerCenter);
         setTranslateX(smartResetPosition);
       }, 100);
     }, 4000);
