@@ -5,8 +5,7 @@ interface LoginFormProps {
   onLogin: (isAdmin: boolean) => void;
 }
 
-// Fixed admin password
-const ADMIN_PASSWORD = 'K7M9P2X8';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASS || '';
 
 export default function LoginForm({ onLogin }: LoginFormProps) {
   const [username, setUsername] = useState('');
