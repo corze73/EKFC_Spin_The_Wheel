@@ -30,7 +30,7 @@ export function useDatabase() {
         created_at: row.created_at
       })));
     } catch (error) {
-      console.error('Error loading players:', error);
+      console.warn('Error loading players:', error);
       // Fallback to localStorage if database fails
       const savedPlayers = localStorage.getItem('football-wheel-players');
       if (savedPlayers) {
