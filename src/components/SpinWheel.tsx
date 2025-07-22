@@ -31,17 +31,10 @@ const wheelOptions = [
 
 export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled, onSoundToggle }: SpinWheelProps) {
   const [isSpinning, setIsSpinning] = useState(false);
-  const [translateX, setTranslateX] = useState(0);
+  const [rotation, setRotation] = useState(0);
   const wheelRef = useRef<HTMLDivElement>(null);
   
-  const sectorWidth = 150; // Width of each sector
-  const totalWidth = wheelOptions.length * sectorWidth;
-
-  // Initialize wheel to show options centered
-  useEffect(() => {
-    // Start with some options visible, not at the very beginning
-    setTranslateX(-totalWidth * 2);
-  }, [totalWidth]);
+  const sectorAngle = 360 / wheelOptions.length; // Degrees per sector
 
   const spinWheel = () => {
     if (isSpinning || !selectedPlayer) return;
@@ -69,23 +62,18 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       }
     }
 
-    // Reset to a known good position first (middle of the repeated sections)
-    const basePosition = -totalWidth * 5; // Middle of the 10 copies
+    // Calculate spin: multiple full rotations plus random final position
+    const spins = 5 + Math.random() * 5; // 5-10 full rotations
+    const randomAngle = Math.random() * 360;
+    const totalRotation = rotation + (spins * 360) + randomAngle;
     
-    // Calculate spin distance - multiple full rotations plus random final position
-    const spins = 3 + Math.random() * 2; // 3-5 full rotations
-    const randomOffset = Math.random() * totalWidth;
-    const spinDistance = spins * totalWidth + randomOffset;
-    const newTranslateX = basePosition - spinDistance;
-    
-    setTranslateX(newTranslateX);
+    setRotation(totalRotation);
 
     setTimeout(() => {
-      // Calculate which option is under the center arrow
-      const containerCenter = 300; // Half of 600px container width
-      const absolutePosition = Math.abs(newTranslateX);
-      const positionUnderArrow = (absolutePosition + containerCenter) % totalWidth;
-      const selectedIndex = Math.floor(positionUnderArrow / sectorWidth);
+      // Calculate which option is selected based on final rotation
+      // The arrow points down, so we need to account for that
+      const normalizedRotation = (360 - (totalRotation % 360)) % 360;
+      const selectedIndex = Math.floor(normalizedRotation / sectorAngle) % wheelOptions.length;
       const result = wheelOptions[selectedIndex];
       
       onSpinComplete(`${selectedPlayer}: ${result.text}`);
@@ -102,31 +90,43 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
         </div>
         
         {/* Horizontal wheel container */}
-        <div className="w-full h-20 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg">
+        <div className="w-full h-20 overflow-hidden border-4 border-[#2D5A27] rounded-full bg-white shadow-lg relative">
           <div 
             ref={wheelRef}
-            className={`flex h-full ${isSpinning ? 'transition-transform duration-[4s] ease-out' : 'transition-none'}`}
+            className={`absolute inset-0 ${isSpinning ? 'transition-transform duration-[4s] ease-out' : 'transition-none'}`}
             style={{ 
-              transform: `translateX(${translateX}px)`, 
-              width: `${totalWidth * 10}px` // 10 copies for seamless scrolling
+              transform: `rotate(${rotation}deg)`,
+              transformOrigin: 'center'
             }}
           >
-            {/* Repeat options 10 times for seamless scrolling */}
-            {[...Array(10)].map((_, repeatIndex) => 
-              wheelOptions.map((option, index) => (
+            {wheelOptions.map((option, index) => {
+              const angle = index * sectorAngle;
+              return (
                 <div
-                  key={`${repeatIndex}-${index}`}
-                  className="flex-shrink-0 flex items-center justify-center text-white font-bold text-xs px-2 py-2 border-r-2 border-white"
-                  style={{ 
-                    backgroundColor: option.color, 
-                    width: `${sectorWidth}px`,
-                    height: '100%'
+                  key={index}
+                  className="absolute flex items-center justify-center text-white font-bold text-xs"
+                  style={{
+                    backgroundColor: option.color,
+                    width: '100%',
+                    height: '100%',
+                    transform: `rotate(${angle}deg)`,
+                    transformOrigin: 'center',
+                    clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos((angle - sectorAngle/2) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle - sectorAngle/2) * Math.PI / 180)}%, ${50 + 50 * Math.cos((angle + sectorAngle/2) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle + sectorAngle/2) * Math.PI / 180)}%)`
                   }}
                 >
-                  <span className="break-words text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis">{option.text}</span>
+                  <span 
+                    className="break-words text-center leading-tight px-1"
+                    style={{
+                      transform: `rotate(${-angle}deg)`,
+                      fontSize: '10px',
+                      maxWidth: '80px'
+                    }}
+                  >
+                    {option.text}
+                  </span>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
         </div>
       </div>
