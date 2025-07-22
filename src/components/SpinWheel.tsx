@@ -90,12 +90,12 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
     <div className="space-y-6">
       <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
         {/* Static Arrow Pointer - pointing right at center of wheel */}
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
-          <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-r-[20px] border-r-[#2D5A27] shadow-lg"></div>
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
+          <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-l-[20px] border-l-[#2D5A27] shadow-lg"></div>
         </div>
         
         {/* Vertical wheel container - taller to show more options */}
-        <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative ml-6">
+        <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative mr-6">
           <div 
             ref={wheelRef}
             className={`absolute left-0 top-0 w-full flex flex-col ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
