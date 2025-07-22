@@ -17,15 +17,15 @@ const wheelOptions = [
   { text: 'Bring snacks next session', color: '#eab308', weight: 6 },
   { text: 'Clean all bibs after training', color: '#84cc16', weight: 6 },
   { text: 'Say Yes coach before every sentence', color: '#22c55e', weight: 6 },
-  { text: 'Take warm-up next game', color: '#10b981', weight: 6 },
+  { text: 'Take warm-up next training session', color: '#10b981', weight: 6 },
   { text: 'Make tea or coffee for coaches', color: '#06b6d4', weight: 6 },
-  { text: '3 pitch laps before kick-off', color: '#3b82f6', weight: 6 },
+  { text: '3 pitch laps before training', color: '#3b82f6', weight: 6 },
   { text: 'Call parent on speaker', color: '#6366f1', weight: 6 },
   { text: 'Do a teammate impression', color: '#8b5cf6', weight: 6 },
   { text: 'Wear shirt backwards', color: '#a855f7', weight: 6 },
   { text: 'Embarrassing selfie in group chat', color: '#d946ef', weight: 6 },
   { text: 'Bring Lucozade for the team', color: '#ec4899', weight: 6 },
-  { text: 'Wear Sondico boots for 15 mins', color: '#f43f5e', weight: 6 },
+  { text: 'Wear Sondico boots for 15 mins training session', color: '#f43f5e', weight: 6 },
   { text: 'Unlucky! Pay double fine', color: '#7c2d12', weight: 2 }
 ];
 
