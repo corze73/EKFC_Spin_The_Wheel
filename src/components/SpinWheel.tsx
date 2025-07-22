@@ -90,7 +90,7 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
     <div className="space-y-6">
       <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
         {/* Static Arrow Pointer - pointing right at center of wheel */}
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
           <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-r-[20px] border-r-[#2D5A27] shadow-lg"></div>
         </div>
         
