@@ -10,6 +10,19 @@ export function useDatabase() {
   // Load players from Neon database
   const loadPlayers = async () => {
     try {
+      if (!sql) {
+        // Fallback to localStorage if no database connection
+        const savedPlayers = localStorage.getItem('football-wheel-players');
+        if (savedPlayers) {
+          const playerNames = JSON.parse(savedPlayers);
+          setPlayers(playerNames.map((name: string, index: number) => ({
+            id: `local-${index}`,
+            name,
+            created_at: new Date().toISOString()
+          })));
+        }
+        return;
+      }
       const data = await sql`SELECT * FROM players ORDER BY name`;
       setPlayers(data.map(row => ({
         id: row.id,
@@ -34,6 +47,21 @@ export function useDatabase() {
   // Load results from Neon database
   const loadResults = async () => {
     try {
+      if (!sql) {
+        // Fallback to localStorage if no database connection
+        const savedResults = localStorage.getItem('football-wheel-results');
+        if (savedResults) {
+          const localResults = JSON.parse(savedResults);
+          setResults(localResults.map((r: any) => ({
+            id: r.id,
+            player_name: r.player,
+            result: r.result,
+            timestamp: r.timestamp,
+            created_at: r.timestamp
+          })));
+        }
+        return;
+      }
       const data = await sql`SELECT * FROM spin_results ORDER BY created_at DESC LIMIT 50`;
       setResults(data.map(row => ({
         id: row.id,
