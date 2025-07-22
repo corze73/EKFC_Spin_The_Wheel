@@ -90,6 +90,20 @@ export function useDatabase() {
   // Add player to Neon database
   const addPlayer = async (name: string) => {
     try {
+      if (!sql) {
+        // Fallback to localStorage if no database connection
+        const newPlayer = {
+          id: `local-${Date.now()}`,
+          name,
+          created_at: new Date().toISOString()
+        };
+        const updatedPlayers = [...players, newPlayer];
+        setPlayers(updatedPlayers);
+        const playerNames = updatedPlayers.map(p => p.name);
+        localStorage.setItem('football-wheel-players', JSON.stringify(playerNames));
+        return true;
+      }
+      
       const result = await sql`
         INSERT INTO players (name) 
         VALUES (${name}) 
@@ -103,8 +117,18 @@ export function useDatabase() {
       setPlayers([...players, newPlayer]);
       return true;
     } catch (error) {
-      console.error('Error adding player:', error);
-      return false;
+      console.warn('Error adding player to database, trying localStorage fallback:', error);
+      // Fallback to localStorage if database fails
+      const newPlayer = {
+        id: `local-${Date.now()}`,
+        name,
+        created_at: new Date().toISOString()
+      };
+      const updatedPlayers = [...players, newPlayer];
+      setPlayers(updatedPlayers);
+      const playerNames = updatedPlayers.map(p => p.name);
+      localStorage.setItem('football-wheel-players', JSON.stringify(playerNames));
+      return true;
     }
   };
 
