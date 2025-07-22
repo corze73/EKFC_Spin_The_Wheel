@@ -89,35 +89,36 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
   return (
     <div className="space-y-6">
       <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
-        {/* Static Arrow Pointer - pointing right at center */}
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-2 z-10">
-          <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-l-[20px] border-l-[#2D5A27] shadow-lg"></div>
+        {/* Static Arrow Pointer - pointing right at center of wheel */}
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
+          <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-r-[20px] border-r-[#2D5A27] shadow-lg"></div>
         </div>
         
-        {/* Vertical wheel container */}
-        <div className="w-full h-80 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative">
+        {/* Vertical wheel container - taller to show more options */}
+        <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative ml-6">
           <div 
             ref={wheelRef}
-            className={`absolute inset-y-0 flex ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
+            className={`absolute left-0 top-0 w-full flex flex-col ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
             style={{ 
               transform: `translateY(-${currentPosition}px)`,
-              height: `${totalHeight * 3}px` // Triple height to ensure smooth scrolling
+              height: `${totalHeight * 4}px` // Quadruple height to ensure smooth scrolling
             }}
           >
-            {/* Render options multiple times for seamless scrolling vertically */}
-            {[...Array(3)].map((_, cycle) => 
+            {/* Render options multiple times for seamless vertical scrolling */}
+            {[...Array(4)].map((_, cycle) => 
               wheelOptions.map((option, index) => (
                 <div
                   key={`${cycle}-${index}`}
-                  className="flex items-center justify-center text-white font-bold text-sm border-b border-white/20"
+                  className="flex items-center justify-center text-white font-bold text-sm border-b border-white/20 flex-shrink-0"
                   style={{
                     backgroundColor: option.color,
                     height: `${sectorHeight}px`,
                     width: '100%',
-                    minHeight: `${sectorHeight}px`
+                    minHeight: `${sectorHeight}px`,
+                    maxHeight: `${sectorHeight}px`
                   }}
                 >
-                  <span className="break-words text-center leading-tight px-4 text-sm">
+                  <span className="break-words text-center leading-tight px-2 text-xs">
                     {option.text}
                   </span>
                 </div>
