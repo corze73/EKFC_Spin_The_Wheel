@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 
 interface SpinWheelProps {
@@ -33,29 +33,28 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
   const [isSpinning, setIsSpinning] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(0);
   const wheelRef = useRef<HTMLDivElement>(null);
-  
-  const sectorHeight = 80; // Height of each sector in pixels
+
+  const sectorHeight = 80;
   const totalHeight = wheelOptions.length * sectorHeight;
 
   const spinWheel = () => {
     if (isSpinning || !selectedPlayer) return;
 
     setIsSpinning(true);
-    
+
     if (soundEnabled) {
-      // Simple beep sound using Web Audio API
       try {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
+
         oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        
+
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.2);
       } catch (error) {
@@ -63,55 +62,47 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       }
     }
 
-    // Calculate spin distance: multiple full cycles plus random final position (spinning down)
-    const fullCycles = 3 + Math.random() * 3; // 3-6 full cycles
+    const fullCycles = 3 + Math.random() * 3;
     const randomOffset = Math.random() * totalHeight;
-    const spinDistance = (fullCycles * totalHeight) + randomOffset;
-    
-    const newPosition = currentPosition + spinDistance;
+
+    // Lock target to mid-stack (cycle 2) for visual stability
+    const finalTarget = (2 * totalHeight) + randomOffset;
+    const newPosition = finalTarget;
+
     setCurrentPosition(newPosition);
 
     setTimeout(() => {
-      // Calculate which option is selected based on final position
-      // The pointer is at the center of the visible area (h-96 = 384px, so center is at 192px)
-      const visibleHeight = 384; // h-96 in pixels
-      const pointerPosition = visibleHeight / 2; // Center of visible area
-      
-      // Calculate the actual position of the wheel content at the pointer
+      const visibleHeight = 384;
+      const pointerPosition = visibleHeight / 2;
+
       const finalPosition = newPosition % totalHeight;
       const positionAtPointer = (finalPosition + pointerPosition) % totalHeight;
       const selectedIndex = Math.floor(positionAtPointer / sectorHeight) % wheelOptions.length;
       const result = wheelOptions[selectedIndex];
-      
+
       onSpinComplete(`${selectedPlayer}: ${result.text}`);
       setIsSpinning(false);
-      
-      // Reset position to prevent overflow while maintaining visual continuity
-      // Keep the wheel at the same visual position but reset to first cycle
-      setCurrentPosition(finalPosition);
+      // No reset to avoid flicker
     }, 4000);
   };
 
   return (
     <div className="space-y-6">
       <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
-        {/* Static Arrow Pointer - pointing right at center of wheel */}
         <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
           <div className="w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent border-r-[20px] border-r-[#2D5A27] shadow-lg"></div>
         </div>
-        
-        {/* Vertical wheel container - taller to show more options */}
+
         <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative">
-          <div 
+          <div
             ref={wheelRef}
             className={`absolute left-0 top-0 w-full flex flex-col ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
-            style={{ 
+            style={{
               transform: `translateY(-${currentPosition}px)`,
-              height: `${totalHeight * 4}px` // Quadruple height to ensure smooth scrolling
+              height: `${totalHeight * 4}px`
             }}
           >
-            {/* Render options multiple times for seamless vertical scrolling */}
-            {[...Array(4)].map((_, cycle) => 
+            {[...Array(4)].map((_, cycle) =>
               wheelOptions.map((option, index) => (
                 <div
                   key={`${cycle}-${index}`}
@@ -133,7 +124,7 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
           </div>
         </div>
       </div>
-      
+
       <div className="flex items-center justify-center space-x-4 mt-6">
         <button
           onClick={spinWheel}
