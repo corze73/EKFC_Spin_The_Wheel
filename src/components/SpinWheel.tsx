@@ -17,9 +17,9 @@ const wheelOptions = [
   { text: 'Bring snacks next session', color: '#eab308', weight: 6 },
   { text: 'Clean all bibs after training', color: '#84cc16', weight: 6 },
   { text: 'Say Yes coach before every sentence', color: '#22c55e', weight: 6 },
-  { text: 'Take warm-up next training session', color: '#10b981', weight: 6 },
+  { text: 'Take warm-up next game', color: '#10b981', weight: 6 },
   { text: 'Make tea or coffee for coaches', color: '#06b6d4', weight: 6 },
-  { text: '3 pitch laps before training', color: '#3b82f6', weight: 6 },
+  { text: '3 pitch laps before kick-off', color: '#3b82f6', weight: 6 },
   { text: 'Call parent on speaker', color: '#6366f1', weight: 6 },
   { text: 'Do a teammate impression', color: '#8b5cf6', weight: 6 },
   { text: 'Wear shirt backwards', color: '#a855f7', weight: 6 },
@@ -34,27 +34,29 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
   const [currentPosition, setCurrentPosition] = useState(0);
   const wheelRef = useRef<HTMLDivElement>(null);
 
-  const sectorHeight = 80;
+  const sectorHeight = 80; // Height of each sector
   const totalHeight = wheelOptions.length * sectorHeight;
+  const visibleHeight = 384; // h-96
+  const pointerPosition = visibleHeight / 2;
 
   const spinWheel = () => {
     if (isSpinning || !selectedPlayer) return;
 
     setIsSpinning(true);
 
+    // Reset starting point so the next spin is consistent
+    const startFrom = 0;
+
     if (soundEnabled) {
       try {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-
         oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.2);
       } catch (error) {
@@ -62,19 +64,14 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
       }
     }
 
-    const fullCycles = 3 + Math.random() * 3;
+    const fullCycles = 4 + Math.random() * 2; // 4-6 full spins
     const randomOffset = Math.random() * totalHeight;
+    const spinDistance = (fullCycles * totalHeight) + randomOffset;
 
-    // Lock target to mid-stack (cycle 2) for visual stability
-    const finalTarget = (2 * totalHeight) + randomOffset;
-    const newPosition = finalTarget;
-
+    const newPosition = startFrom + spinDistance;
     setCurrentPosition(newPosition);
 
     setTimeout(() => {
-      const visibleHeight = 384;
-      const pointerPosition = visibleHeight / 2;
-
       const finalPosition = newPosition % totalHeight;
       const positionAtPointer = (finalPosition + pointerPosition) % totalHeight;
       const selectedIndex = Math.floor(positionAtPointer / sectorHeight) % wheelOptions.length;
@@ -82,7 +79,9 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
 
       onSpinComplete(`${selectedPlayer}: ${result.text}`);
       setIsSpinning(false);
-      // No reset to avoid flicker
+
+      // Reset to the new visual base
+      setCurrentPosition(finalPosition);
     }, 4000);
   };
 
@@ -96,7 +95,9 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
         <div className="w-full h-96 overflow-hidden border-4 border-[#2D5A27] rounded-lg bg-white shadow-lg relative">
           <div
             ref={wheelRef}
-            className={`absolute left-0 top-0 w-full flex flex-col ${isSpinning ? 'transition-transform duration-[4s] ease-out' : ''}`}
+            className={`absolute left-0 top-0 w-full flex flex-col ${
+              isSpinning ? 'transition-transform duration-[4s] ease-out' : ''
+            }`}
             style={{
               transform: `translateY(-${currentPosition}px)`,
               height: `${totalHeight * 4}px`
@@ -110,9 +111,7 @@ export default function SpinWheel({ selectedPlayer, onSpinComplete, soundEnabled
                   style={{
                     backgroundColor: option.color,
                     height: `${sectorHeight}px`,
-                    width: '100%',
-                    minHeight: `${sectorHeight}px`,
-                    maxHeight: `${sectorHeight}px`
+                    width: '100%'
                   }}
                 >
                   <span className="break-words text-center leading-tight px-2 text-xs">
